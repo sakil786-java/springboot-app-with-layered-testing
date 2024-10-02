@@ -1,0 +1,222 @@
+Importance of Testing
+• Identifies Bugs Early and Saves Money
+• Mitigates Deployment Risks and Ensures System Stability
+• Increases Productivity and Speeds Up Development
+• Promotes Confidence among Developers and builds Trust
+
+Common Junit Annotations
+• @Test: Marks a method as a test method. JUnit will execute this method when running
+tests.
+• @DisplayName: Sets a custom display name for the test class or test method. This name
+is used in test reports and IDEs.
+• @Disabled: Disables a test class or test method. Disabled tests are not executed.
+Junit Annotations
+• @BeforeEach: Indicates that the annotated method should be executed before each test method. These can
+be used to reset each test case conditions.
+• @AfterEach: Indicates that the annotated method should be executed after each test method.
+• @BeforeAll: Indicates that the annotated method should be executed once before all test methods in the
+class. The method must be static. (Executed once)
+• @AfterAll: Indicates that the annotated method should be executed once after all test methods in the
+class. The method must be static. (Executed once)
+More JUnit Functionalities: JUnit5 Doc
+
+JUnit vs AssertJ
+JUnit is one of the most widely used testing frameworks in the Java ecosystem. JUnit
+provides a simple and standardized way to write test cases, execute them, and report
+the results.
+AssertJ, on the other hand, is not a testing framework but rather a library that
+complements testing frameworks like JUnit. It focuses on providing fluent and
+expressive assertions, enhancing the readability and maintainability of your test code.
+JUnit and AssertJ are both popular tools used in Java for testing, but they serve
+different purposes and have distinct features. 
+
+
+Common AssertJ Methods
+1. Numbers:
+assertThat(5).isEqualTo(5).isNotEqualTo(10).isGreaterThan(4);
+2. String:
+assertThat("hello").startsWith("he").endsWith("lo").contains("ell");
+3. Boolean:
+assertThat(true).isTrue(); OR assertThat(false).isFalse();
+4. List/Array:
+assertThat(List.of("apple", "banana")).contains("apple")
+.doesNotContain("orange").hasSize(2);
+
+Common AssertJ Methods
+5. Exceptions:
+assertThatThrownBy(() -> {
+throw new IllegalArgumentException("Invalid argument");
+}).isInstanceOf(IllegalArgumentException.class)
+.hasMessage("Invalid argument")
+.hasStackTraceContaining("ExampleTest");
+More AssertJ Methods: https://assertj.github.io/doc/
+
+Unit Test vs Integration Test
+1. Unit Tests:
+A unit test covers a single “unit”, where a unit commonly is a single class, but can also be a cluster of cohesive
+classes that is tested in combination.
+• Focus: Individual components, such as methods in a service class.
+• Tools: JUnit, Mockito
+• Example: Testing a service method that performs a calculation or business logic
+2. Integration Tests:
+A test that covers multiple layers. This might cover the interaction between a business service and the
+persistence layer, for instance.
+• Focus: Interaction between multiple components, such as repositories, services, and controllers.
+• Tools: Spring Test, @SpringBootTest.
+• Example: Testing the interaction between a service and a repository.
+
+Key Testing Annotations in Spring Boot
+• @SpringBootTest: Used to create an application context and load the full application
+for integration tests. Useful in Integration Testing.
+• @DataJpaTest: Used to test JPA repositories, configuring an in-memory database for
+the test. Useful in Unit Testing Service Layer and Persistence Layer.
+• @TestConfiguration: Used to define extra beans or configurations for tests.
+• @WebMvcTest: Used for testing Spring MVC controllers. It initializes only the web
+layer and not the entire context. Useful in Unit Testing Controller layer
+• @AutoConfigureTestDatabase: Used to replace the actual database with an embedded
+database during tests.
+
+Test Writing Approaches
+(Test-Driven Development) TDD :
+1. Write a failing test,
+2. write the minimum code to pass the test, and
+3. refactor the code for better design.
+(Behavior-Driven Development) BDD [extension of TDD]:
+1. Define behavior in human-readable sentences.
+2. Write scenarios to meet the behavior.
+3. Implement code to pass scenarios.
+There are also Test-After Development and Simultaneous Development
+
+Using @DataJpaTest Slice
+@DataJpaTest is tailored to test JPA components like repositories. It configures an
+in-memory database, sets up Spring Data JPA repositories, and scans for JPA
+entities. This makes it ideal for testing repository methods and their interactions
+with the database.
+By default, @DataJpaTest runs each test within a transaction, which is rolled back
+after the test completes. This ensures tests do not affect each other and provides
+a clean state for each test.
+
+Configuring Test Database
+Use the AutoConfiureTestDatabase Annotation to configure the test database
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+• ANY: Replace the DataSource bean whether it was auto-configured or manually defined.
+• NONE: Don't replace the application default DataSource.
+• AUTO_CONFIGURED: Only replace the DataSource if it was auto-configured.
+Read more here:
+
+TestContainer
+Use Testcontainer to mock a real database, Use when mocking the repository or in
+Integration testing.
+Step 1: Download the Docker Application from here and run it.
+Step 2: Add the following dependency:
+<dependency>
+<groupId>org.springframework.boot</groupId>
+<artifactId>spring-boot-testcontainers</artifactId>
+<scope>test</scope>
+</dependency>
+
+
+Running TestContainer
+Step 3: Create the following Test Configuration:
+@TestConfiguration(proxyBeanMethods = false)
+public class TestcontainersConfiguration {
+@Bean
+@ServiceConnection
+PostgreSQLContainer<?> postgresContainer() {
+return new PostgreSQLContainer<>(DockerImageName.parse("postgres:latest"));
+}
+}
+Step 4: Import the Configuration in your test file:
+@DataJpaTest
+@Import(TestcontainersConfiguration.class)
+class EmployeeRepositoryTest {…}
+
+Mockito
+Mockito is useful for testing components in isolation without
+relying on their actual implementations or external
+dependencies.
+Mockito can be used for:
+• Mocking: Creating mock objects to simulate the behavior of
+real objects.
+• Stubbing: Defining the behavior of mock objects when specific
+methods are called.
+• Verification: Checking if certain methods were called on mock
+objects
+
+Mockito Methods
+1.Creating Mock
+with @Mock Annotation
+with Mockito.mock(Classname)
+2. Stubbing Mock
+when(T methodCall): Specifies a method call to be stubbed.
+thenReturn(T value): Sets a return value for a stubbed method call.
+thenThrow(Throwable... throwables): Throws an exception when a stubbed method
+call is made.
+
+Mockito Methods
+3. Verifying Methods
+verify(T mock): Verifies that a method was called on a mock.
+verify(T mock, VerificationMode mode): Verifies that a method was called with
+a specific verification mode (e.g., times, never).
+VerificationMode modes:
+• times(int wantedNumberOfInvocations): Verifies the exact number of invocations.
+• never(): Verifies that a method was never called.
+• atLeastOnce(): Verifies that a method was called at least once.
+• atLeast(int minNumberOfInvocations): at least called x times
+• atMost(int maxNumberOfInvocations): at most called x times
+• only(): Verifies that no other method was called on the mock.
+
+Mockito Methods
+4. Argument Captor:
+It allows you to capture arguments
+for further assertions or
+validation, making it useful when
+you want to inspect the arguments
+that were passed to a method call
+
+Importance of Integration Testing
+Integration testing helps identify issues related to
+the interaction between different modules or services.
+Many issues, such as configuration errors, missing
+data, or incorrect business logic, only surface when
+components interact with each other.
+Integration tests serve as a safeguard when changes
+are made to the codebase. They help ensure that new
+changes do not break the existing functionality,
+making regression testing more effective.
+
+Using WebTestClient
+WebTestClient provides a fluent API and supports making real HTTP requests to your
+application. Although WebTestClient is primarily associated with WebFlux applications,
+it can also be used with Spring MVC applications when set up correctly.
+Use the @AutoConfigureWebTestClient to auto configure the WebTestClient.
+
+WebTestClient Testing Methods
+Common WebTestClient Response Methods:
+• exchange(): Executes the request and returns a WebTestClient.ResponseSpec
+• expectStatus(): Asserts the status code of the response.
+• expectBody(): Asserts the body of the response.
+• expectHeader(): Asserts the headers of the response.
+• .jsonPath("$.id").isNotEmpty()
+• .jsonPath("$.name").isEqualTo("Jane Doe")
+• .jsonPath("$.email").isEqualTo("jane.doe@example.com")
+
+JaCoCo - Java Code Coverage
+JaCoCo is a free Java code coverage library distributed under the Eclipse Public
+License. The library is often used in Java projects to measure the coverage of unit
+or integration tests.
+Use this link to get Jacoco maven plugin
+Running the test using JUnit will automatically set in motion the JaCoCo agent. It
+will create a coverage report in binary format in the target directory,
+target/jacoco.exec.
+
+Benefits of JaCoCo
+• Visibility into Test Coverage
+• Identify Dead Code
+• Focus on Critical Areas: By showing which parts of your code are not covered,
+JaCoCo allows you to focus your testing efforts on the most critical and
+potentially vulnerable areas of your application.
+• Better project maintenance, compliance and standards
+
+
+
